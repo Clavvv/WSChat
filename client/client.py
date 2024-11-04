@@ -201,8 +201,6 @@ async def main():
         - Set your display name by typing .username [your_name] 
         so others can recognize you!
 
-        Please set your username with '.username {name}' to begin chatting:
-
         ==========================================================
         """
     
