@@ -92,6 +92,11 @@ class UserMessage:
                 print('a function to add another user as a friend will go here eventually')
             case '.remove':
                 print('a function to remove a user as a friend will go here eventually')
+            case '.username':
+                if len(parameters) <= 0:
+                    print('username cannot be empty')
+                username = parameters[0]
+                print(f'username set: {username}')
             case _:
                 print(f"{command} is not a recognized command, type '.help' to view a list of commands")
 
@@ -106,6 +111,7 @@ class UserMessage:
             .exit                    - Exit the program
             .add <username>          - Add a user as a friend               [NOT IMPLEMENTED]
             .remove <username>       - Remove a user from your friends list [NOT IMPLEMENTED]
+            .username <username>     - Set your display name
         '''
         print(help_message)
 
@@ -176,6 +182,26 @@ async def main():
     keep_alive_task = asyncio.create_task(ping())
     input_task = asyncio.create_task(get_user_input(queue))
     listen_task = asyncio.create_task(listen_to_server())
+    welcome_message = """
+        ==========================================================
+                     Welcome to the Chat Room!                 
+        ==========================================================
+        
+        Hello! We're glad you're here.
+        
+        To help you get started, here are a few quick tips:
+
+        - Type .help to see a list of commands you can use to 
+        navigate and interact in the chat.
+        - Set your display name by typing .username [your_name] 
+        so others can recognize you!
+
+        Please set your username with '.username {name}' to begin chatting:
+
+        ==========================================================
+        """
+    
+    print(welcome_message)
 
     while True:
         message = await queue.get()

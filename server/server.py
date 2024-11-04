@@ -38,14 +38,13 @@ async def message_handler(socket, rooms, message):
             print('PONG!')
             await socket.send(json.dumps({'status': {'success': 'Pong'}}))
         
-        elif command == 'chat_message':
+        elif command == 'chat-message':
 
             username = data.get('username')
             content = data.get('content')
             room_id = data.get('room_id')
             msg = username + ': ' + content
             await broadcast_message(socket, room_id, msg, rooms)
-            print('confirmed sent')
 
         else:
             await socket.send(json.dumps({"status": {"error": "501 Command is not recognized"}}))
