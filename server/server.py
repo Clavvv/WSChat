@@ -18,7 +18,8 @@ async def message_handler(socket, rooms, message):
         if command == 'join':
             room_id = data.get('room_id')
             print(f'we are joining room {room_id}')
-            await socket.send(json.dumps({"status" : {'success': f'room joined successfully'}}))
+            await socket.send(json.dumps({"status" : {'success': f'room joined successfully',
+                                                      'room_id': room_id}}))
             await handle_room_join(socket, room_id, rooms)
 
         elif command == 'create-room':

@@ -6,7 +6,7 @@ import sys
 #Global Variables
 socket = None
 room = None
-username = 'testUserName'
+username = None
 
 class UserMessage:
 
@@ -32,7 +32,7 @@ class UserMessage:
         global room
         global username
         
-        userInput = self.text.split(' ')
+        userInput = self.text.split(' ', 1)
         command, parameters = userInput[0], userInput[1:]
 
         match command:
@@ -162,8 +162,13 @@ async def listen_to_server():
                 message = await socket.recv()
                 if message:
                     message_data = json.loads(message)
+
                     if message_data.get('type') == 'chat-message':
                         process_chat_message(message_data)
+
+                    if (room_id := message_data.get('status', {}).get('room_id')):
+                        print(f"Successfully joined room: {room_id}")
+
 
 
         except json.JSONDecodeError as e:
@@ -184,7 +189,7 @@ async def main():
     listen_task = asyncio.create_task(listen_to_server())
     welcome_message = """
         ==========================================================
-                     Welcome to the Chat Room!                 
+                     Welcome to WS Chat!                 
         ==========================================================
         
         Hello! We're glad you're here.
