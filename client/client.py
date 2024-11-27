@@ -2,6 +2,8 @@ import asyncio
 import websockets
 import json
 import sys
+from utils.username import addUsername, deleteUsername
+
 
 #Global Variables
 socket = None
@@ -37,8 +39,12 @@ class UserMessage:
 
         match command:
             case ".join":
-                if len(parameters) == 1:
 
+                if not username:
+                    print('please set a username before messaging')
+                    return
+
+                if len(parameters) == 1:
                     msg = {
                         'type': 'join',
                         'room_id': parameters[0],
@@ -49,9 +55,27 @@ class UserMessage:
 
                 else:
                     print("Error: Invalid format for room_id. Please use the following format:\n"
-                        ".join room_name_goes_here\n"
-                        "Make sure to replace room_name_goes_here with the actual name of the room you want to join."
+                        ".join <room-id>\n"
                     )
+
+            case '.leave':
+
+                if room:
+                    msg = {
+                    'type': 'leave',
+                    'room_id': room,
+                    'username': username
+                    }
+
+                    try:
+                        await send_message_to_server(msg)
+                        room = None
+                    except:
+                        print('something went wrong again...')
+                else:
+                    print('you are not in a room...')
+
+
             case '.msg':
                 print("A function to message another user will go here")
             case '.say':
@@ -93,10 +117,25 @@ class UserMessage:
             case '.remove':
                 print('a function to remove a user as a friend will go here eventually')
             case '.username':
+
                 if len(parameters) <= 0:
                     print('username cannot be empty')
-                username = parameters[0]
-                print(f'username set: {username}')
+
+                if username is not None:
+                    deleteUsername(username)
+
+                if username is not None:
+                    deleteUsername(parameters[0])
+
+                if addUsername(parameters[0]):
+                    username = parameters[0]
+                    print(f'username set: {username}')
+
+                else:
+                    print(f'username is unavailable please try again')
+                    username = None
+
+
             case _:
                 print(f"{command} is not a recognized command, type '.help' to view a list of commands")
 
@@ -105,7 +144,8 @@ class UserMessage:
         help_message = '''
             Commands:
             ------------------------------------------------------
-            .join <room_number>      - Join a specific chat room by its number  
+            .join <room_number>      - Join a specific chat room by its number, this cannot be undone
+            .leave                   - Leaves current room
             .msg <username>          - Send a private message to a user     [NOT IMPLEMENTED]
             .help                    - Display this help message
             .exit                    - Exit the program
@@ -168,13 +208,12 @@ async def listen_to_server():
 
                     if (room_id := message_data.get('status', {}).get('room_id')):
                         print(f"Successfully joined room: {room_id}")
-
-
-
+                    
         except json.JSONDecodeError as e:
             print(message)
             print(f"Error decoding JSON message: {e}")
         except Exception as e:
+            print(message_data)
             print(f"Error receiving message: {e}")
             break
 
